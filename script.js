@@ -21,7 +21,21 @@ function startApp() {
     return;
   }
 
-  statusBox.textContent = "Getting your location...";
+  const userAccepted = confirm(
+    "This app needs your location to show prayer times and Qibla direction. Please tap OK, then allow location access."
+  );
+
+  if (!userAccepted) {
+    statusBox.textContent =
+      "Location permission is required to use the app.";
+    return;
+  }
+
+  requestLocation();
+}
+
+function requestLocation() {
+  statusBox.textContent = "Requesting your location...";
 
   navigator.geolocation.getCurrentPosition(
     async function(position) {
@@ -43,13 +57,13 @@ function startApp() {
 
       if (error.code === 1) {
         statusBox.textContent =
-          "Location permission denied. Please allow location access.";
+          "Location denied. Please refresh and allow access.";
       } else if (error.code === 2) {
         statusBox.textContent =
-          "Location unavailable. Please turn on GPS or mobile location.";
+          "Location unavailable. Please turn on GPS.";
       } else if (error.code === 3) {
         statusBox.textContent =
-          "Location request timed out. Please refresh and try again.";
+          "Location timed out. Please try again.";
       } else {
         statusBox.textContent =
           "Could not get your location.";
@@ -58,7 +72,7 @@ function startApp() {
 
     {
       enableHighAccuracy: false,
-      timeout: 20000,
+      timeout: 15000,
       maximumAge: 60000
     }
   );
