@@ -16,31 +16,81 @@ const prayerNames = [
 
 function startApp() {
   if (!navigator.geolocation) {
-    statusBox.textContent = "Geolocation not supported.";
+    statusBox.textContent = "Geolocation is not supported on this device.";
     return;
   }
+
+  statusBox.textContent = "Getting your location...";
 
   navigator.geolocation.getCurrentPosition(
     async function(position) {
       const lat = position.coords.latitude;
       const lon = position.coords.longitude;
 
-      statusBox.textContent =
-        `Location found: ${lat.toFixed(4)}, ${lon.toFixed(4)}`;
+      statusBox.textContent = "Location found. Finding city name...";
+
+      const placeName = await getPlaceName(lat, lon);
+
+      statusBox.textContent = `Location: ${placeName}`;
 
       await getPrayerTimes(lat, lon);
       await getQiblaDirection(lat, lon);
     },
-    function() {
-      statusBox.textContent =
-        "Location permission denied.";
+
+    function(error) {
+      console.error(error);
+
+      if (error.code === 1) {
+        statusBox.textContent =
+          "Location permission denied. Please allow location access.";
+      } else if (error.code === 2) {
+        statusBox.textContent =
+          "Location unavailable. Please turn on GPS or mobile location.";
+      } else if (error.code === 3) {
+        statusBox.textContent =
+          "Location request timed out. Please refresh and try again.";
+      } else {
+        statusBox.textContent =
+          "Could not get your location.";
+      }
     },
+
     {
-      enableHighAccuracy: true,
-      timeout: 10000,
-      maximumAge: 0
+      enableHighAccuracy: false,
+      timeout: 20000,
+      maximumAge: 60000
     }
   );
+}
+
+async function getPlaceName(lat, lon) {
+  try {
+    const url =
+      `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`;
+
+    const response = await fetch(url);
+    const data = await response.json();
+
+    const address = data.address;
+
+    const city =
+      address.city ||
+      address.town ||
+      address.village ||
+      address.suburb ||
+      address.state ||
+      "Unknown city";
+
+    const country =
+      address.country ||
+      "Unknown country";
+
+    return `${city}, ${country}`;
+
+  } catch (error) {
+    console.error(error);
+    return `${lat.toFixed(4)}, ${lon.toFixed(4)}`;
+  }
 }
 
 async function getPrayerTimes(lat, lon) {
@@ -67,8 +117,8 @@ async function getPrayerTimes(lat, lon) {
     });
 
   } catch (error) {
-    statusBox.textContent = "Could not load prayer times.";
     console.error(error);
+    statusBox.textContent = "Could not load prayer times.";
   }
 }
 
@@ -86,8 +136,8 @@ async function getQiblaDirection(lat, lon) {
       `Qibla direction: ${qiblaDirection.toFixed(2)}° from North`;
 
   } catch (error) {
-    qiblaInfo.textContent = "Could not load Qibla direction.";
     console.error(error);
+    qiblaInfo.textContent = "Could not load Qibla direction.";
   }
 }
 
@@ -112,12 +162,16 @@ async function enableCompass() {
           handleOrientation,
           true
         );
+
+        qiblaInfo.textContent =
+          "Compass enabled. Turn your phone until the yellow needle points upward.";
       } else {
         qiblaInfo.textContent = "Compass permission denied.";
       }
 
     } catch (error) {
       console.error(error);
+      qiblaInfo.textContent = "Could not enable compass.";
     }
 
   } else {
@@ -132,6 +186,9 @@ async function enableCompass() {
       handleOrientation,
       true
     );
+
+    qiblaInfo.textContent =
+      "Compass enabled. Turn your phone until the yellow needle points upward.";
   }
 }
 
@@ -140,30 +197,24 @@ function handleOrientation(event) {
 
   if (event.webkitCompassHeading) {
     heading = event.webkitCompassHeading;
-
   } else if (event.alpha !== null) {
     heading = 360 - event.alpha;
-
   } else {
-    qiblaInfo.textContent =
-      "Compass unavailable on this device.";
+    qiblaInfo.textContent = "Compass unavailable on this device.";
     return;
   }
 
   const rotation = qiblaDirection - heading;
 
-  needle.style.transform =
-    `rotate(${rotation}deg)`;
+  needle.style.transform = `rotate(${rotation}deg)`;
 
-  const difference =
-    Math.abs(normalizeAngle(rotation));
+  const difference = Math.abs(normalizeAngle(rotation));
 
   if (difference < 5) {
-    qiblaInfo.textContent =
-      "You are facing the Qibla.";
+    qiblaInfo.textContent = "You are facing the Qibla.";
   } else {
     qiblaInfo.textContent =
-      "Turn until the yellow needle points upward.";
+      `Turn until the yellow needle points upward. Qibla: ${qiblaDirection.toFixed(2)}°`;
   }
 }
 
