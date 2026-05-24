@@ -203,7 +203,7 @@ async function enableCompass() {
     );
 
     qiblaInfo.textContent =
-      "Compass enabled. Turn your phone until the yellow needle points upward.";
+      "Compass enabled. Turn your phone until the yellow needle points to the qibla.";
   }
 }
 
@@ -248,7 +248,7 @@ function handleOrientation(event) {
     qiblaInfo.textContent = "You are facing the Qibla.";
   } else {
     qiblaInfo.textContent =
-      `Turn until the yellow needle points upward.`;
+      `Turn until the yellow needle points to the qibla.`;
   }
 }
 
