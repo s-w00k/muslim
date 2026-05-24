@@ -5,6 +5,7 @@ const needle = document.getElementById("needle");
 const enableCompassBtn = document.getElementById("enableCompassBtn");
 
 let qiblaDirection = 0;
+let smoothedHeading = null;
 
 const prayerNames = [
   "Fajr",
@@ -193,28 +194,47 @@ async function enableCompass() {
 }
 
 function handleOrientation(event) {
-  let heading;
+  let rawHeading;
 
   if (event.webkitCompassHeading) {
-    heading = event.webkitCompassHeading;
+    rawHeading = event.webkitCompassHeading;
   } else if (event.alpha !== null) {
-    heading = 360 - event.alpha;
+    rawHeading = 360 - event.alpha;
   } else {
     qiblaInfo.textContent = "Compass unavailable on this device.";
     return;
   }
 
-  const rotation = qiblaDirection - heading;
+  // SMOOTHING FACTOR
+  // lower = smoother but slower response
+  const smoothing = 0.1;
+
+  if (smoothedHeading === null) {
+    smoothedHeading = rawHeading;
+  }
+
+  // Handle wraparound (359° -> 0° problem)
+  let delta = rawHeading - smoothedHeading;
+
+  if (delta > 180) delta -= 360;
+  if (delta < -180) delta += 360;
+
+  smoothedHeading += delta * smoothing;
+
+  if (smoothedHeading < 0) smoothedHeading += 360;
+  if (smoothedHeading >= 360) smoothedHeading -= 360;
+
+  const rotation = qiblaDirection - smoothedHeading;
 
   needle.style.transform = `rotate(${rotation}deg)`;
 
   const difference = Math.abs(normalizeAngle(rotation));
 
-  if (difference < 5) {
+  if (difference < 10) {
     qiblaInfo.textContent = "You are facing the Qibla.";
   } else {
     qiblaInfo.textContent =
-      `Turn until the yellow needle points upward. Qibla: ${qiblaDirection.toFixed(2)}°`;
+      `Turn until the yellow needle points upward.`;
   }
 }
 
