@@ -179,7 +179,7 @@ async function enableCompass() {
         );
 
         qiblaInfo.textContent =
-          "Compass enabled. Turn your phone until the yellow needle points upward.";
+          "Compass enabled. Turn your phone until the yellow needle points to the qibla.";
       } else {
         qiblaInfo.textContent = "Compass permission denied.";
       }
