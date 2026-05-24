@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Prayer Times & Qibla Finder</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <main class="app">
+    <h1>Prayer Times</h1>
+    <p class="subtitle">Auto location prayer times + Qibla direction</p>
+
+    <div id="status" class="status">Detecting your location...</div>
+
+    <section class="prayer-list" id="prayerList"></section>
+
+    <section class="qibla-section">
+      <h2>Qibla Finder</h2>
+
+      <div class="compass-wrapper">
+        <span class="direction-label north">N</span>
+        <span class="direction-label east">E</span>
+        <span class="direction-label south">S</span>
+        <span class="direction-label west">W</span>
+
+        <div id="needle" class="needle"></div>
+        <div class="center-dot"></div>
+      </div>
+
+      <p id="qiblaInfo" class="qibla-info">Waiting for Qibla data...</p>
+
+      <button id="enableCompassBtn">Enable Compass</button>
+    </section>
+
+    <p class="small-note">
+      Location and compass access work best on a real phone using HTTPS.
+    </p>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
