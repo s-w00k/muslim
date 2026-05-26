@@ -161,3 +161,9 @@ button:hover {
   text-align: center;
   line-height: 1.4;
 }
+
+.sunrise-time {
+  font-size: 12px;
+  opacity: 0.75;
+  margin-top: 4px;
+}
