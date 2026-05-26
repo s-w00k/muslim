@@ -9,6 +9,7 @@ let smoothedHeading = null;
 
 const prayerNames = [
   "Fajr",
+  "Sunrise",
   "Dhuhr",
   "Asr",
   "Maghrib",
