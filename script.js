@@ -9,7 +9,6 @@ let smoothedHeading = null;
 
 const prayerNames = [
   "Fajr",
-  "Sunrise",
   "Dhuhr",
   "Asr",
   "Maghrib",
@@ -124,10 +123,20 @@ async function getPrayerTimes(lat, lon) {
       const card = document.createElement("div");
       card.className = "prayer-card";
 
-      card.innerHTML = `
-        <span class="prayer-name">${name}</span>
-        <span class="prayer-time">${cleanTime(timings[name])}</span>
-      `;
+      if (name === "Fajr") {
+  card.innerHTML = `
+    <div>
+      <div class="prayer-name">Fajr</div>
+      <div class="sunrise-time">Sunrise: ${cleanTime(timings.Sunrise)}</div>
+    </div>
+    <span class="prayer-time">${cleanTime(timings.Fajr)}</span>
+  `;
+} else {
+  card.innerHTML = `
+    <span class="prayer-name">${name}</span>
+    <span class="prayer-time">${cleanTime(timings[name])}</span>
+  `;
+}
 
       prayerList.appendChild(card);
     });
